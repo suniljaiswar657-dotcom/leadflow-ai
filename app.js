@@ -5,7 +5,7 @@ let leads;try{const saved=localStorage.getItem(KEY);leads=saved===null?seed:JSON
 const $=id=>document.getElementById(id);let toastTimer;
 const today=()=>new Date().toISOString().slice(0,10);
 const safe=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const initials=s=>String(s||"").trim().split(/\\s+/).slice(0,2).map(x=>x[0]||"").join("").toUpperCase();
+const initials=s=>String(s||"").trim().split(/\s+/).slice(0,2).map(x=>x[0]||"").join("").toUpperCase();
 const dateLabel=s=>s?new Date(s+"T00:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short"}):"Not set";
 const due=x=>x.followup&&x.followup<=today()&&!["Won","Lost"].includes(x.status);
 function save(){localStorage.setItem(KEY,JSON.stringify(leads));render()}
@@ -27,6 +27,6 @@ $("searchInput").addEventListener("input",render);$("statusFilter").addEventList
 $("leadTableBody").addEventListener("change",e=>{const id=e.target.dataset.statusId;if(!id)return;const lead=leads.find(x=>x.id===id);if(lead){lead.status=e.target.value;save();toast("Lead status updated.")}});
 $("leadTableBody").addEventListener("click",async e=>{const id=e.target.dataset.actionId;if(!id)return;const x=leads.find(y=>y.id===id);if(!x)return;const msg="Hi "+x.name+", thanks for your interest in "+(x.service||"our service")+". Just following up on your inquiry. Is there anything I can clarify or help you with?";try{await navigator.clipboard.writeText(msg);toast("Follow-up message copied. Paste it into WhatsApp.")}catch{toast("Copy is unavailable in this browser.")}});
 $("viewAllBtn").addEventListener("click",()=>{$("searchInput").value="";$("statusFilter").value="all";render();$("leads").scrollIntoView({behavior:"smooth"})});$("showDueBtn").addEventListener("click",()=>$("followups").scrollIntoView({behavior:"smooth"}));
-$("exportBtn").addEventListener("click",()=>{if(!leads.length){toast("No leads to export yet.");return}const cols=["name","phone","service","status","followup","notes"],csv=[cols.join(","),...leads.map(x=>cols.map(k=>'"'+String(x[k]||"").replace(/"/g,'""')+'"').join(","))].join("\\n"),blob=new Blob(["\\ufeff"+csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="leadflow-leads.csv";a.click();URL.revokeObjectURL(url);toast("CSV export downloaded.")});
+$("exportBtn").addEventListener("click",()=>{if(!leads.length){toast("No leads to export yet.");return}const cols=["name","phone","service","status","followup","notes"],csv=[cols.join(","),...leads.map(x=>cols.map(k=>'"'+String(x[k]||"").replace(/"/g,'""')+'"').join(","))].join("\n"),blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="leadflow-leads.csv";a.click();URL.revokeObjectURL(url);toast("CSV export downloaded.")});
 $("mobileMenu").addEventListener("click",()=>$("sidebar").classList.toggle("open"));document.querySelectorAll(".nav-link").forEach(a=>a.addEventListener("click",()=>$("sidebar").classList.remove("open")));
 $("todayLabel").textContent=new Date().toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short",year:"numeric"});render();
